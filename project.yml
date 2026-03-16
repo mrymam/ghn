@@ -2,7 +2,7 @@ name: GHNApp
 options:
   bundleIdPrefix: com.mrymam
   deploymentTarget:
-    macOS: "13.0"
+    macOS: "14.0"
   xcodeVersion: "15.0"
 
 targets:
@@ -15,18 +15,13 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mrymam.ghn
         PRODUCT_NAME: GHN
-        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
         CODE_SIGN_ENTITLEMENTS: ""
         ENABLE_APP_SANDBOX: false
+        GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_LSUIElement: true
-    preBuildScripts:
-      - name: Build Go Binary
-        script: |
-          cd "${SRCROOT}"
-          make build
-        basedOnDependencyAnalysis: false
     postBuildScripts:
       - name: Copy Go Binary
         script: |
-          cp "${SRCROOT}/bin/ghn" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/"
+          cp "${SRCROOT}/bin/ghn" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/ghn-cli"
         basedOnDependencyAnalysis: false

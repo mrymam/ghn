@@ -8,14 +8,7 @@ struct GHNApp: App {
         MenuBarExtra {
             MenuView(bridge: bridge)
         } label: {
-            Label {
-                Text("GHN")
-            } icon: {
-                Image(systemName: "bell.fill")
-            }
-            if bridge.unreadCount > 0 {
-                Text("\(bridge.unreadCount)")
-            }
+            Image(systemName: bridge.unreadCount > 0 ? "bell.badge.fill" : "bell.fill")
         }
 
         #if os(macOS)

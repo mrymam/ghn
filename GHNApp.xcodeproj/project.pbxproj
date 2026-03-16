@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4FC4E3BDF29F65CDE16326F2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A087C32250A0D47FF1943084 /* SettingsView.swift */; };
+		52C5EDC105B75B809E55DEB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43C5D1A24A0CFDDB2F531DAC /* Assets.xcassets */; };
 		610C456A5E555AD6C2BF8463 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C738A3E65351C5121A13B9 /* MenuView.swift */; };
 		C3C8D3FA733C302B643E2C46 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414B148663C17BF44820495C /* ConfigStore.swift */; };
 		D32B67F57655E189BB3A8FBA /* GHNApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BED630E602CA3E0EADC29DB /* GHNApp.swift */; };
@@ -18,6 +19,7 @@
 		25C738A3E65351C5121A13B9 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
 		300A7867DE50D3EEF700949A /* GHNBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GHNBridge.swift; sourceTree = "<group>"; };
 		414B148663C17BF44820495C /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
+		43C5D1A24A0CFDDB2F531DAC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7BED630E602CA3E0EADC29DB /* GHNApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GHNApp.swift; sourceTree = "<group>"; };
 		A087C32250A0D47FF1943084 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AB955820DF9DDCBD1FDB4C2C /* GHNApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GHNApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,6 +37,7 @@
 		180BD46C30DA229546A10CE3 /* GHNApp */ = {
 			isa = PBXGroup;
 			children = (
+				43C5D1A24A0CFDDB2F531DAC /* Assets.xcassets */,
 				414B148663C17BF44820495C /* ConfigStore.swift */,
 				7BED630E602CA3E0EADC29DB /* GHNApp.swift */,
 				300A7867DE50D3EEF700949A /* GHNBridge.swift */,
@@ -59,8 +62,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6D3F53A35A3734637E307ED0 /* Build configuration list for PBXNativeTarget "GHNApp" */;
 			buildPhases = (
-				CA233B9D8165F16CCD177CA6 /* Build Go Binary */,
 				1FB3E4997A35C8228CFEED35 /* Sources */,
+				B9412DAA36258F333C409563 /* Resources */,
 				7DA18AE5B6254AFFC54C51D2 /* Copy Go Binary */,
 			);
 			buildRules = (
@@ -104,6 +107,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		B9412DAA36258F333C409563 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				52C5EDC105B75B809E55DEB8 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXShellScriptBuildPhase section */
 		7DA18AE5B6254AFFC54C51D2 /* Copy Go Binary */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -122,26 +136,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp \"${SRCROOT}/bin/ghn\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/\"\n";
-		};
-		CA233B9D8165F16CCD177CA6 /* Build Go Binary */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Go Binary";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}\"\nmake build\n";
+			shellScript = "cp \"${SRCROOT}/bin/ghn\" \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/ghn-cli\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -168,12 +163,13 @@
 				CODE_SIGN_ENTITLEMENTS = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mrymam.ghn;
 				PRODUCT_NAME = GHN;
 				SDKROOT = macosx;
@@ -225,7 +221,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -287,7 +283,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -306,12 +302,13 @@
 				CODE_SIGN_ENTITLEMENTS = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mrymam.ghn;
 				PRODUCT_NAME = GHN;
 				SDKROOT = macosx;

@@ -24,6 +24,7 @@ type PR struct {
 type Event struct {
 	Type      string    `json:"type"`
 	PR        *PR       `json:"pr,omitempty"`
+	PRs       []PR      `json:"prs,omitempty"`
 	URL       string    `json:"url,omitempty"`
 	Count     int       `json:"count"`
 	Timestamp time.Time `json:"timestamp"`
@@ -63,8 +64,14 @@ func (p *Poller) Run(ctx context.Context) <-chan Event {
 			}
 		}
 
+		initPRs := make([]PR, 0, len(known))
+		for _, pr := range known {
+			initPRs = append(initPRs, pr)
+		}
+
 		ch <- Event{
 			Type:      "init",
+			PRs:       initPRs,
 			Count:     len(known),
 			Timestamp: time.Now(),
 		}

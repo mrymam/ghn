@@ -45,8 +45,8 @@ struct MenuView: View {
 
             Divider()
 
-            Button("Settings...") {
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+            SettingsLink {
+                Text("Settings...")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 4)

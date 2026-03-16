@@ -1,8 +1,10 @@
 import Foundation
+import UserNotifications
 
 struct GHNEvent: Decodable {
     let type: String
     let pr: GHNPR?
+    let prs: [GHNPR]?
     let url: String?
     let count: Int
     let timestamp: Date
@@ -36,7 +38,12 @@ class GHNBridge: ObservableObject {
     private var pipe: Pipe?
 
     init() {
+        requestNotificationPermission()
         startWatching()
+    }
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
     func startWatching() {
@@ -45,12 +52,18 @@ class GHNBridge: ObservableObject {
         let process = Process()
         let pipe = Pipe()
 
-        // Look for ghn binary bundled in the app, or fallback to PATH
-        if let bundledURL = Bundle.main.url(forAuxiliaryExecutable: "ghn") {
+        if let bundledURL = Bundle.main.url(forAuxiliaryExecutable: "ghn-cli") {
             process.executableURL = bundledURL
         } else {
-            process.executableURL = URL(fileURLWithPath: "/usr/local/bin/ghn")
+            process.executableURL = URL(fileURLWithPath: "/usr/local/bin/ghn-cli")
         }
+
+        // Pass through PATH so ghn-cli can find `gh`
+        var env = ProcessInfo.processInfo.environment
+        if env["PATH"] == nil {
+            env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+        }
+        process.environment = env
 
         process.arguments = ["watch"]
         process.standardOutput = pipe
@@ -67,9 +80,9 @@ class GHNBridge: ObservableObject {
             guard let line = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !line.isEmpty else { return }
 
-            // NDJSON: each line is a separate JSON object
             for jsonLine in line.components(separatedBy: "\n") {
-                guard let jsonData = jsonLine.data(using: .utf8) else { continue }
+                let trimmed = jsonLine.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty, let jsonData = trimmed.data(using: .utf8) else { continue }
 
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
@@ -85,7 +98,7 @@ class GHNBridge: ObservableObject {
         do {
             try process.run()
         } catch {
-            print("Failed to start ghn process: \(error)")
+            print("Failed to start ghn-cli process: \(error)")
         }
     }
 
@@ -99,6 +112,9 @@ class GHNBridge: ObservableObject {
     private func handleEvent(_ event: GHNEvent) {
         switch event.type {
         case "init":
+            if let prs = event.prs {
+                reviewPRs = prs
+            }
             unreadCount = event.count
 
         case "new":
@@ -123,12 +139,18 @@ class GHNBridge: ObservableObject {
     }
 
     private func sendNotification(pr: GHNPR) {
-        let notification = NSUserNotification()
-        notification.title = "New Review Request"
-        notification.subtitle = "\(pr.repo) by \(pr.author)"
-        notification.informativeText = pr.title
-        notification.soundName = NSUserNotificationDefaultSoundName
-        NSUserNotificationCenter.default.deliver(notification)
+        let content = UNMutableNotificationContent()
+        content.title = "New Review Request"
+        content.subtitle = "\(pr.repo) by \(pr.author)"
+        content.body = pr.title
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: pr.url,
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request)
     }
 
     deinit {
