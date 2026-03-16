@@ -31,6 +31,8 @@ struct GHNPR: Decodable, Identifiable {
 
 @MainActor
 class GHNBridge: ObservableObject {
+    static weak var shared: GHNBridge?
+
     @Published var reviewPRs: [GHNPR] = []
     @Published var unreadCount: Int = 0
 
@@ -38,6 +40,7 @@ class GHNBridge: ObservableObject {
     private var pipe: Pipe?
 
     init() {
+        GHNBridge.shared = self
         requestNotificationPermission()
         startWatching()
     }
@@ -52,22 +55,27 @@ class GHNBridge: ObservableObject {
         let process = Process()
         let pipe = Pipe()
 
-        if let bundledURL = Bundle.main.url(forAuxiliaryExecutable: "ghn-cli") {
-            process.executableURL = bundledURL
-        } else {
-            process.executableURL = URL(fileURLWithPath: "/usr/local/bin/ghn-cli")
-        }
+        // Locate ghn-cli next to the main executable
+        let mainExe = Bundle.main.executableURL!
+        let cliURL = mainExe.deletingLastPathComponent().appendingPathComponent("ghn-cli")
+        process.executableURL = cliURL
 
         // Pass through PATH so ghn-cli can find `gh`
         var env = ProcessInfo.processInfo.environment
-        if env["PATH"] == nil {
-            env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-        }
+        let extraPaths = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+        env["PATH"] = (env["PATH"].map { $0 + ":" } ?? "") + extraPaths
         process.environment = env
 
         process.arguments = ["watch"]
         process.standardOutput = pipe
-        process.standardError = FileHandle.nullDevice
+        let errPipe = Pipe()
+        process.standardError = errPipe
+        errPipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if let str = String(data: data, encoding: .utf8), !str.isEmpty {
+                print("[ghn-cli stderr] \(str)")
+            }
+        }
 
         self.process = process
         self.pipe = pipe
@@ -85,7 +93,18 @@ class GHNBridge: ObservableObject {
                 guard !trimmed.isEmpty, let jsonData = trimmed.data(using: .utf8) else { continue }
 
                 let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .iso8601
+                let formatter = ISO8601DateFormatter()
+                formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                decoder.dateDecodingStrategy = .custom { decoder in
+                    let container = try decoder.singleValueContainer()
+                    let str = try container.decode(String.self)
+                    if let date = formatter.date(from: str) { return date }
+                    // Fallback without fractional seconds
+                    let basic = ISO8601DateFormatter()
+                    basic.formatOptions = [.withInternetDateTime]
+                    if let date = basic.date(from: str) { return date }
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(str)")
+                }
 
                 guard let event = try? decoder.decode(GHNEvent.self, from: jsonData) else { continue }
 

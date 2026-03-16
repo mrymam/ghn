@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct GHNApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var bridge = GHNBridge()
 
     var body: some Scene {
@@ -11,10 +12,14 @@ struct GHNApp: App {
             Image(systemName: bridge.unreadCount > 0 ? "bell.badge.fill" : "bell.fill")
         }
 
-        #if os(macOS)
         Settings {
             SettingsView()
         }
-        #endif
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillTerminate(_ notification: Notification) {
+        GHNBridge.shared?.stopWatching()
     }
 }
