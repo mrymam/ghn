@@ -11,6 +11,7 @@ targets:
     platform: macOS
     sources:
       - GHNApp
+      - Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mrymam.ghn
@@ -20,8 +21,26 @@ targets:
         ENABLE_APP_SANDBOX: false
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_LSUIElement: true
+    dependencies:
+      - target: GHNWidgetExtension
+        embed: true
     postBuildScripts:
       - name: Copy Go Binary
         script: |
           cp "${SRCROOT}/bin/ghn" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/MacOS/ghn-cli"
         basedOnDependencyAnalysis: false
+
+  GHNWidgetExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - GHNWidget
+      - Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mrymam.ghn.widget
+        PRODUCT_NAME: GHNWidgetExtension
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_APP_SANDBOX: false
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension

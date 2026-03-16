@@ -136,6 +136,24 @@ class GHNBridge: ObservableObject {
         default:
             break
         }
+
+        syncToWidget()
+    }
+
+    private func syncToWidget() {
+        let shared = reviewPRs.map { pr in
+            SharedPR(
+                repo: pr.repo,
+                fullRepo: pr.fullRepo,
+                number: pr.number,
+                title: pr.title,
+                author: pr.author,
+                url: pr.url,
+                updatedAt: pr.updatedAt,
+                draft: pr.draft
+            )
+        }
+        SharedDataStore.write(prs: shared)
     }
 
     private func sendNotification(pr: GHNPR) {
